@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>威胁报告仪表盘</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 25px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .chart-title {
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .critical-event {
+            border-left: 4px solid #e74c3c;
+        }
+        .critical-event-high {
+            border-left: 4px solid #c0392b;
+        }
+        .event-card {
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .threat-level-1 { background-color: #ffebee; }
+        .threat-level-2 { background-color: #ffecb3; }
+        .threat-level-3 { background-color: #e8f5e9; }
+        .threat-level-4 { background-color: #e3f2fd; }
+        .badge-threat {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 12px;
+        }
+        .threat-1 { background-color: #e74c3c; }
+        .threat-2 { background-color: #e67e22; }
+        .threat-3 { background-color: #f1c40f; }
+        .threat-4 { background-color: #3498db; }
+        .protocol-cell {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部标题栏 -->
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="bi bi-shield-exclamation"></i> 威胁报告仪表盘</h1>
+                    <p class="lead">实时监控与分析安全威胁数据</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="fw-light">最后更新: {{ stats.end_time }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 统计卡片 -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="text-muted">总威胁事件</div>
+                    <div class="stat-value text-primary">{{ stats.total_events }}</div>
+                    <div class="text-small">检测到的事件总数</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="text-muted">高危事件</div>
+                    <div class="stat-value text-danger">{{ stats.critical_count }}</div>
+                    <div class="text-small">威胁等级 ≤ 2</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="text-muted">主要威胁源</div>
+                    <div class="stat-value text-success">{{ stats.top_source }}</div>
+                    <div class="text-small">攻击最频繁的源IP</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="text-muted">时间范围</div>
+                    <div class="stat-value text-info">{{ stats.start_time }}</div>
+                    <div class="text-small">至 {{ stats.end_time }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表行 1 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title">威胁等级分布</h3>
+                    <img src="data:image/png;base64,{{ charts.threat_level_dist }}" class="img-fluid rounded">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title">TOP 10 威胁源IP</h3>
+                    <img src="data:image/png;base64,{{ charts.top_threat_sources }}" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表行 2 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title">应用层协议风险分析</h3>
+                    <img src="data:image/png;base64,{{ charts.protocol_risk }}" class="img-fluid rounded">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title">每小时事件数量趋势</h3>
+                    <img src="data:image/png;base64,{{ charts.hourly_trend }}" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+        <!-- 高危事件列表 -->
+        <div class="chart-container">
+            <h3 class="chart-title">高危事件列表 (威胁等级 ≤ 2)</h3>
+
+            {% if critical_events %}
+            <div class="row">
+                {% for event in critical_events %}
+                <div class="col-md-6 mb-3">
+                    <div class="card event-card {% if event.威胁等级值 == 1 %}critical-event-high threat-level-1{% else %}critical-event threat-level-2{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge badge-threat threat-{{ event.威胁等级值 }}">
+                                    威胁等级: {{ event.威胁等级值 }}
+                                </span>
+                                <small class="text-muted">{{ event.发现时间 }}</small>
+                            </div>
+
+                            <h5 class="card-title">{{ event.威胁名称 }}</h5>
+
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted">源IP</small>
+                                    <div>{{ event.源IP }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">目的IP</small>
+                                    <div>{{ event.目的IP }}</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <small class="text-muted">协议</small>
+                                    <div class="protocol-cell">{{ event.应用层协议 }}</div>
+                                </div>
+                            </div>
+
+                            <p class="card-text mt-2 small text-muted">
+                                {{ event.详细信息 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-success">
+                未发现高危事件（威胁等级 ≤ 2）
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="mt-5 py-3 bg-light text-center">
+        <div class="container">
+            <p class="mb-0">威胁报告系统 &copy; {{ now.year }} | 最后更新: {{ stats.end_time }}</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 更新页面时间
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.querySelector('footer p').innerHTML =
+                `威胁报告系统 &copy; ${now.getFullYear()} | 最后更新: {{ stats.end_time }}`;
+        });
+    </script>
+</body>
+</html>
