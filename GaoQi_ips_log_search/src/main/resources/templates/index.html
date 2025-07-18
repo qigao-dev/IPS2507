@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>日志检索系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div class="container">
+    <h1>日志检索系统</h1>
+
+    <form action="/search" method="get">
+        <div class="search-box">
+            <input type="text" name="threatName" placeholder="威胁名称">
+            <button type="submit">搜索威胁</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" name="ip" placeholder="IP地址">
+            <button type="submit">搜索IP</button>
+        </div>
+
+        <div class="search-box">
+            <input type="datetime-local" name="startTime" placeholder="开始时间">
+            <input type="datetime-local" name="endTime" placeholder="结束时间">
+            <button type="submit">时间范围搜索</button>
+        </div>
+    </form>
+
+    <div class="result-count" th:text="'共找到 ' + ${logs.size()} + ' 条记录'"></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>事件ID</th>
+            <th>时间</th>
+            <th>源IP</th>
+            <th>目标IP</th>
+            <th>威胁类型</th>
+            <th>威胁等级</th>
+            <th>详情</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="log : ${logs}">
+            <td th:text="${log.eventId}"></td>
+            <td th:text="${#dates.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${log.sourceIp} + ':' + ${log.sourcePort}"></td>
+            <td th:text="${log.destinationIp} + ':' + ${log.destinationPort}"></td>
+            <td th:text="${log.threatName}"></td>
+            <td th:text="${log.threatLevel}"></td>
+            <td th:text="${log.details}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

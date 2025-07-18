@@ -1,0 +1,13 @@
+spring:
+  elasticsearch:
+    rest:
+      uris: ${ES_HOST:http://10.1.62.192:9200}
+      username: ${ES_USERNAME:elastic}
+      password: ${ES_PASSWORD:ebank@123}
+
+server:
+  port: 8080
+
+app:
+  es:
+    index: ips_logs
