@@ -1,3 +1,3 @@
 # IPS2507
-## Team Member   GaoQi   ShiMingyang   LiuZhaojun   ZhaoYan
+## Team Member   “GaoQi”   ShiMingyang   LiuZhaojun   ZhaoYan
 ## Gao Qi
